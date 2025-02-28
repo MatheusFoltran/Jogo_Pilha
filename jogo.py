@@ -23,15 +23,41 @@ def lista_de_inteiros(n: int) -> list[int]:
     shuffle(lista)
     return lista
 
-#Enche as pilhas com os números sorteados
-def enche_lista_de_pilhas(list_int: list[int], list_pihas: list[Pilha]) -> list[Pilha]:
-    contador = 0
-    for c in range(0, len(list_pihas) - 2):
-        for d in range(0, 4):
-            list_pihas[c].empilha(list_int[contador])
-            contador += 1
-    return list_pihas
+#Verifica se o jogo foi finalizado(se o jogador venceu)
+def vencedor(lista_de_pilhas: list[Pilha]) -> bool:
+    a = deepcopy(lista_de_pilhas)
+    x = True
+    for b in a:
+        if b.quantidade_elementos() < 4 and b.quantidade_elementos() > 0:
+            x = False
+        else:
+            while b.quantidade_elementos() > 1 and x == True:
+                d = b.desempilha()
+                c = b.elemento_do_topo()
+                if c != d:
+                    x = False
+    return x
 
+#Enche as pilhas com os números sorteados
+def enche_lista_de_pilhas(list_int: list[int], list_pilhas: list[Pilha]) -> list[Pilha]:
+    
+    # Preenche as pilhas com a configuração atual
+    contador = 0
+    for c in range(len(list_pilhas) - 2):  # Exclui as duas últimas pilhas
+        for d in range(4):  # Cada pilha recebe 4 elementos
+            list_pilhas[c].empilha(list_int[contador])
+            contador += 1
+    
+    # Se a configuração for vencedora, embaralha e recomeça
+    if vencedor(list_pilhas):
+        for pilha in list_pilhas:
+            while not pilha.pilha_vazia():
+                pilha.desempilha()
+        shuffle(list_int)
+        return enche_lista_de_pilhas(list_int, list_pilhas)
+    else:
+        return list_pilhas   
+        
 #Define as jogadas e suas condições, se uma das condições não for atendida a jogada não é feita
 def jogada(lista_de_pilhas: list[Pilha], pilha1_posição: int, pilha2_posição: int) -> list[Pilha]:
     pilha1 = lista_de_pilhas[pilha1_posição]
@@ -48,18 +74,3 @@ def jogada(lista_de_pilhas: list[Pilha], pilha1_posição: int, pilha2_posição
             return False, 'Pilha de destino cheia'
     else:
         return False, 'Pilha de origem vazia'
-    
-#Verifica se o jogo foi finalizado(se o jogador venceu)
-def vencedor(lista_de_pilhas: list[Pilha]) -> bool:
-    a = deepcopy(lista_de_pilhas)
-    x = True
-    for b in a:
-        if b.quantidade_elementos() < 4 and b.quantidade_elementos() > 0:
-            x = False
-        else:
-            while b.quantidade_elementos() > 1 and x == True:
-                d = b.desempilha()
-                c = b.elemento_do_topo()
-                if c != d:
-                    x = False
-    return x
